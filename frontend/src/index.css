@@ -12,6 +12,7 @@
     }
 }
 
+/* below all can settlekan in jsx className */
 @layer components {
     .input-box {
         @apply w-full text-sm 
