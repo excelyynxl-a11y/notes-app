@@ -1,23 +1,62 @@
 import React, { useState } from 'react'
 import TagInput from '../../components/Input/TagInput'
 import { X } from 'lucide-react';
+import axiosInstance from '../../utils/axiosInstance';
 
 const AddEditNotes = ({ 
     noteData,
     type,
+    getAllNotes,
     onClose,
+    showToastMessage
 }) => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [tags, setTags] = useState([]);
+    const [title, setTitle] = useState(noteData?.title || '');
+    const [content, setContent] = useState(noteData?.content || '');
+    const [tags, setTags] = useState(noteData?.tags || []);
     const [error, setError] = useState(null);
 
+    // add note
     const addNewNote = async () => {
-        
+        try {
+            const reponse = await axiosInstance.post('/add-note',  {
+                title,
+                content,
+                tags,
+            });
+
+            if (reponse.data && reponse.data.note) {
+                showToastMessage('Note Added Succesfully')
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            if (error.reponse && error.reponse.data && error.response.data.message) {
+                setError(error.reponse.data.message);
+            }
+        }
     }
 
+    // edit note
     const editNote = async () => {
+        const noteId = noteData._id; 
 
+        try {
+            const reponse = await axiosInstance.put('/edit-note/' + noteId,  {
+                title,
+                content,
+                tags,
+            });
+
+            if (reponse.data && reponse.data.note) {
+                showToastMessage('Note Edited Succesfully')
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            if (error.reponse && error.reponse.data && error.response.data.message) {
+                setError(error.reponse.data.message);
+            }
+        }
     }
 
     const handleAddNote = () => {
@@ -34,8 +73,10 @@ const AddEditNotes = ({
         setError('');
 
         if (type === 'edit') {
+            console.log('edit mode');
             editNote();
         } else {
+            console.log('add mode')
             addNewNote();
         }
     }
@@ -96,7 +137,7 @@ const AddEditNotes = ({
                 className='btn-primary font-medium mt-5 p-3'
                 onClick={handleAddNote}
             >
-                ADD
+                {type === 'add' ? 'ADD' : 'EDIT' }
             </button>
         </div>
     )
