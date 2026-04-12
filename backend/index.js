@@ -11,7 +11,7 @@ const User = require('./models/user.model');
 const Note = require('./models/note.model');
 
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); 
 const app = express();
 
 const jwt = require('jsonwebtoken');
@@ -138,7 +138,7 @@ app.post('/login', async (req, res) => {
 
 // get user 
 app.get('/get-user', authenticateToken, async (req, res) => {
-    const { user } = req.user;
+    const { user }  = req.user;
 
     const isUser = await User.findOne({ _id: user._id });
 
@@ -341,6 +341,44 @@ app.put('/update-note-pinned/:noteId', authenticateToken, async (req, res) => {
             error: false,
             note,
             message: 'Note saved succesfully'
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: 'Internal server error.'
+        });
+    }
+})
+
+// search notes
+app.get('/search-notes/', authenticateToken, async (req, res) => {
+
+    const { user } = req.user;
+    const { query } = req.query;
+
+    if (!query) {
+        return res
+            .status(400)
+            .json({
+                error: true,
+                message: 'Search query is required'
+            }); 
+    }
+
+    try {
+        const matchingNotes = await Note.find({
+            userId: user._id,
+            $or: [
+                { title: { $regex: new RegExp(query, 'i')} },
+                { content: { $regex: new RegExp(query, 'i')}},
+            ]
+        });
+
+        return res.json({
+            error: false,
+            notes: matchingNotes,
+            message: 'Notes matching the search query retrieved succesfully.'
         });
 
     } catch (error) {
