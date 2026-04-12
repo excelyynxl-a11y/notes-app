@@ -1,4 +1,4 @@
-# 💬 Note - Note-App
+# 📝 Note - Note-App
 
 Note is a simple full-stack note-taking application built with the **MERN stack**. It supports secure authentication, clean and modern UI, creating personalised to-do-list with CRUD operation (create notes, read notes, update and pin notes, delete notes).
 
