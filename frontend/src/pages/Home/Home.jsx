@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance'
 import Toast from '../../components/ToastMessage/toast'
 import EmptyCard from '../../components/EmptyCard/EmptyCard'
+import NoDataFound from '../../components/EmptyCard/NoDataFound'
 
 const Home = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState({
@@ -23,8 +24,9 @@ const Home = () => {
   }); 
 
   const [allNotes, setAllNotes] = useState([]);
-
   const [userInfo, setUserInfo] = useState(null);
+  const [isSearch, setIsSearch] = useState(false);
+
   const navigate = useNavigate();
 
   const handleEdit = (noteDetails) => {
@@ -97,6 +99,28 @@ const Home = () => {
     }
   }
 
+  // search note
+  const onSearchNote = async (query) => {
+    try {
+      const reponse = await axiosInstance.get('/search-notes', {
+        params: {query},
+      });
+
+      if (reponse.data && reponse.data.notes) {
+        setIsSearch(true);
+        setAllNotes(reponse.data.notes);
+      }
+
+    } catch (error) {
+      console.log(error); 
+    }
+  }
+
+  const handleClearSearch = () => {
+    setIsSearch(false);
+    getAllNotes();
+  }
+
   useEffect(() => {
     getUserInfo();
     getAllNotes();
@@ -105,7 +129,11 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar 
+        userInfo={userInfo} 
+        onSearchNote={onSearchNote}
+        handleClearSearch={handleClearSearch}
+      />
 
       {/* container for displaying NoteCard */}
       <div className='px-10 container mx-auto'>
@@ -127,12 +155,18 @@ const Home = () => {
               ))}
             </div>
           )
-         :
-         (
-          <EmptyCard 
-            message="Start creating your first notes! Click the 'Add' button to jot down your thoughts, ideas and reminders. Let's get started!"
-          />
-         )
+         : isSearch ? 
+            (
+              <NoDataFound
+                message="Opps! No matching data found.."
+              />
+            )
+            :
+            (
+              <EmptyCard 
+                message="Start creating your first notes! Click the 'Add' button to jot down your thoughts, ideas and reminders. Let's get started!"
+              />
+            )
         }
       </div>
 
