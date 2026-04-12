@@ -1,5 +1,6 @@
 import { Edit, Pin, Trash } from 'lucide-react'
 import React from 'react'
+import moment from 'moment';
 
 const NoteCard = ({
     title,
@@ -20,12 +21,12 @@ const NoteCard = ({
                 </h6>
 
                 <span className='text-sm text-slate-500'>
-                    {date}
+                    {moment(date).format('Do MMM YYYY')}
                 </span>
             </div>
 
             <Pin 
-                className={`icon-btn ${isPinned ? 'text-blue-500' : 'text-slate-300'}`}
+                className={`icon-btn ${isPinned ? 'text-blue-500' : 'text-slate-600'}`}
                 onClick={onPinNote}
             />
         </div>
@@ -36,7 +37,7 @@ const NoteCard = ({
 
         <div className='flex items-center gap-2 mt-2'>
             <div className='text-xs text-slate-500'>
-                {tags}
+                {tags.map((item, index) => `#${item} `)}
             </div>
 
             <div className='flex items-center gap-2'>
